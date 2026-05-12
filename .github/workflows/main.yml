@@ -45,8 +45,8 @@ jobs:
           BRANCH: ${{ github.ref_name }}
           SPLIT_MB: 45
         run: |
-          set +e # موقتاً خروج بر اساس خطا را غیرفعال می‌کنیم تا wget بتواند خطا برگرداند
-          # ---------- helper functions ----------
+          set +e   # اجازه بده wget خطای 8 برگردونه و اسکریپت ادامه بده
+
           urlencode() { python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$1"; }
           random_name() { echo "${RANDOM}_$(date +%s)"; }
 
@@ -54,13 +54,15 @@ jobs:
           mkdir -p "$backup_dir" downloads tmp_downloads
           split_bytes=$((SPLIT_MB * 1024 * 1024))
 
-          # ---------- site mode ----------
+          # ---------- SITE MODE ----------
           if [ "$MODE" = "site" ]; then
             site_url=$(echo "$URLS" | awk '{print $1}')
             host=$(echo "$site_url" | awk -F/ '{print $3}')
             folder=$(random_name)
             mkdir -p "$backup_dir/$folder"
             echo "Mirroring: $site_url"
+
+            # wget با نادیده گرفتن خطاهای جزئی مثل 404 برای robots.txt
             wget \
               --mirror \
               --page-requisites \
@@ -76,50 +78,91 @@ jobs:
               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
               -P /tmp/site_temp \
               "$site_url"
-            
-            # ثبت کد خروج wget برای بررسی
+
             wget_exit_code=$?
             if [ $wget_exit_code -eq 8 ]; then
-              echo "WARNING: wget finished with exit code 8 (some resources returned errors like 404). This is often minor. Continuing..."
+              echo "WARNING: wget finished with exit code 8 (missing files like robots.txt). Continuing..."
             elif [ $wget_exit_code -ne 0 ]; then
-              echo "ERROR: wget encountered a critical error (exit code $wget_exit_code). Exiting."
+              echo "ERROR: wget critical error (exit $wget_exit_code)"
               exit 1
             fi
 
-            # find downloaded directory
+            # پوشه دانلود شده را پیدا کن
             site_dir=$(find /tmp/site_temp -maxdepth 1 -type d ! -name "site_temp" -print -quit)
             if [ -z "$site_dir" ]; then
-              echo "ERROR: Download failed, no directory found. Exiting."
+              echo "ERROR: No downloaded directory found!"
               exit 1
             fi
+
             archive_path="$backup_dir/$folder/$host.zip"
             if [ -n "$ZIP_PASSWORD" ]; then
               zip -r -P "$ZIP_PASSWORD" -s ${SPLIT_MB}m "$archive_path" "$site_dir"
             else
               zip -r -s ${SPLIT_MB}m "$archive_path" "$site_dir"
             fi
-            # create README
+
             size_mb=$(du -sm "$backup_dir/$folder" | cut -f1)
             parts=$(ls "$backup_dir/$folder"/*.z* "$backup_dir/$folder"/*.zip 2>/dev/null | wc -l)
-            {
-              echo "# Site Mirror"
-              echo "| Property | Value |"
-              echo "|----------|-------|"
-              echo "| URL | $site_url |"
-              echo "| Size | ${size_mb} MB |"
-              echo "| Parts | $parts |"
-            } > "$backup_dir/$folder/README.md"
+            cat > "$backup_dir/$folder/README.md" << EOF
+          # Site Mirror
+          | Property | Value |
+          |----------|-------|
+          | URL | $site_url |
+          | Size | ${size_mb} MB |
+          | Parts | $parts |
+          EOF
             rm -rf /tmp/site_temp
+
           else
-            # ---------- normal / zip mode ----------
-            # (اینجا کد مربوط به حالت normal و zip بدون تغییر می‌ماند)
-            # ...
+            # ---------- NORMAL / ZIP MODE ----------
+            for url in $URLS; do
+              fname=$(basename "$url" | sed 's/[?#].*//; s/[<>:"|?*]/_/g')
+              ok=false
+              for attempt in 1 2 3; do
+                aria2c -x2 -s2 --timeout=60 -d tmp_downloads -o "$fname" "$url" && ok=true && break
+                curl -L --retry 3 -A "Mozilla/5.0" -o "tmp_downloads/$fname" "$url" && ok=true && break
+                sleep 5
+              done
+              if [ "$ok" = false ]; then
+                echo "FAILED to download: $fname"
+              fi
+            done
+
+            if [ "$MODE" = "zip" ] && [ "$(ls -A tmp_downloads 2>/dev/null)" ]; then
+              folder="archive_$(date +%Y%m%d_%H%M%S)"
+              mkdir -p "$backup_dir/$folder"
+              archive="$backup_dir/$folder/archive.zip"
+              if [ -n "$ZIP_PASSWORD" ]; then
+                zip -j -P "$ZIP_PASSWORD" -s ${SPLIT_MB}m "$archive" tmp_downloads/*
+              else
+                zip -j -s ${SPLIT_MB}m "$archive" tmp_downloads/*
+              fi
+              size_mb=$(du -sm "$backup_dir/$folder" | cut -f1)
+              parts=$(ls "$backup_dir/$folder"/*.z* "$backup_dir/$folder"/*.zip 2>/dev/null | wc -l)
+              echo "# Archive  Size: ${size_mb} MB, Parts: $parts" > "$backup_dir/$folder/README.md"
+            else
+              for f in tmp_downloads/*; do
+                [ -f "$f" ] || continue
+                bname=$(basename "$f")
+                base="${bname%.*}"
+                folder="$base"
+                mkdir -p "$backup_dir/$folder"
+                if [ -n "$ZIP_PASSWORD" ]; then
+                  zip -j -P "$ZIP_PASSWORD" -s ${SPLIT_MB}m "$backup_dir/$folder/$base.zip" "$f"
+                else
+                  zip -j -s ${SPLIT_MB}m "$backup_dir/$folder/$base.zip" "$f"
+                fi
+                size_mb=$(du -sm "$backup_dir/$folder" | cut -f1)
+                echo "# $bname  Size: ${size_mb} MB" > "$backup_dir/$folder/README.md"
+              done
+            fi
+            rm -rf tmp_downloads
           fi
 
-          # ---------- copy to downloads/ ----------
+          # ---------- انتقال به پوشه downloads ----------
           cp -r "$backup_dir"/* downloads/ 2>/dev/null || true
 
-          # ---------- generate downloads/README.md ----------
+          # ---------- بازتولید downloads/README.md ----------
           {
             echo "# Downloaded list"
             for d in downloads/*/; do
@@ -130,17 +173,17 @@ jobs:
             done
           } > downloads/README.md
 
-          # ---------- update root README.md (append section) ----------
+          # ---------- به‌روزرسانی README.md اصلی ----------
           section="فایل‌های دانلود شده"
           if [ -f README.md ]; then
             sed -i "/$section/,/^---/d" README.md
           fi
+          repo_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${BRANCH}/downloads"
           {
             echo ""
             echo "---"
             echo "## $section"
             echo ""
-            repo_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${BRANCH}/downloads"
             for d in downloads/*/; do
               [ -d "$d" ] || continue
               dn=$(basename "$d")
@@ -152,4 +195,22 @@ jobs:
 
       - name: Commit and push
         run: |
-          # ... (باقی مراحل commit و push بدون تغییر)
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add -A downloads/ README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "AVASAM download $(date +%Y%m%d-%H%M%S)"
+
+          for i in $(seq 1 5); do
+            git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            if git push origin HEAD:"${GITHUB_REF_NAME}"; then
+              echo "Push successful"
+              exit 0
+            fi
+            sleep $((3 + RANDOM % 5))
+          done
+          echo "Push failed after retries"
+          exit 1
