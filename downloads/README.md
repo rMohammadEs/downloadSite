@@ -3,6 +3,7 @@
 - [Lunacy](./Lunacy)
 - [archive_20260513_072644](./archive_20260513_072644)
 - [code_1.120.0-1778619059_amd64](./code_1.120.0-1778619059_amd64)
+- [com.brave.Browser](./com.brave.Browser)
 - [com.icons8.Lunacy](./com.icons8.Lunacy)
 - [drawio-amd64-30.0.1](./drawio-amd64-30.0.1)
 - [drawio-arm64-30.0.1](./drawio-arm64-30.0.1)
