@@ -1,5 +1,6 @@
 # Downloaded list
 - [15294_1778576046](./15294_1778576046)
+- [KeeWeb-1.18.7.linux.x64](./KeeWeb-1.18.7.linux.x64)
 - [Lunacy](./Lunacy)
 - [archive_20260513_072644](./archive_20260513_072644)
 - [code_1.120.0-1778619059_amd64](./code_1.120.0-1778619059_amd64)
