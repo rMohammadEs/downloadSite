@@ -9,4 +9,5 @@
 - [drawio-amd64-30.0.1](./drawio-amd64-30.0.1)
 - [drawio-arm64-30.0.1](./drawio-arm64-30.0.1)
 - [lunacy-latest](./lunacy-latest)
+- [padloc_4.3.0_linux_tauri_amd64](./padloc_4.3.0_linux_tauri_amd64)
 - [syncthing_2.1.0_amd64](./syncthing_2.1.0_amd64)
