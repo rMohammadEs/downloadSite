@@ -13,3 +13,4 @@
 - [padloc_4.3.0_linux_tauri_amd64](./padloc_4.3.0_linux_tauri_amd64)
 - [syncthing_2.1.0_amd64](./syncthing_2.1.0_amd64)
 - [toofan_2.3.0_darwin_amd64.tar](./toofan_2.3.0_darwin_amd64.tar)
+- [toofan_2.3.0_linux_amd64.tar](./toofan_2.3.0_linux_amd64.tar)
