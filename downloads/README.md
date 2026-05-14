@@ -1,6 +1,7 @@
 # Downloaded list
 - [Ghostty-1.3.2-main-+b0f8276-x86_64](./Ghostty-1.3.2-main-%2Bb0f8276-x86_64)
 - [Lunacy](./Lunacy)
+- [WezTerm-20240203-110809-5046fc22-Ubuntu20.04](./WezTerm-20240203-110809-5046fc22-Ubuntu20.04)
 - [archive_20260513_072644](./archive_20260513_072644)
 - [code_1.120.0-1778619059_amd64](./code_1.120.0-1778619059_amd64)
 - [com.brave.Browser](./com.brave.Browser)

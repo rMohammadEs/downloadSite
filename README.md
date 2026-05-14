@@ -38,10 +38,13 @@
 ---
 
 ---
+
+---
 ## فایل‌های دانلود شده
 
 - [Ghostty-1.3.2-main-+b0f8276-x86_64](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/Ghostty-1.3.2-main-%2Bb0f8276-x86_64)
 - [Lunacy](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/Lunacy)
+- [WezTerm-20240203-110809-5046fc22-Ubuntu20.04](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/WezTerm-20240203-110809-5046fc22-Ubuntu20.04)
 - [archive_20260513_072644](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/archive_20260513_072644)
 - [code_1.120.0-1778619059_amd64](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/code_1.120.0-1778619059_amd64)
 - [com.brave.Browser](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/com.brave.Browser)
