@@ -1,5 +1,6 @@
 # Downloaded list
 - [15294_1778576046](./15294_1778576046)
+- [Ghostty-1.3.2-main-+b0f8276-x86_64](./Ghostty-1.3.2-main-%2Bb0f8276-x86_64)
 - [KeeWeb-1.18.7.linux.x64](./KeeWeb-1.18.7.linux.x64)
 - [Lunacy](./Lunacy)
 - [archive_20260513_072644](./archive_20260513_072644)

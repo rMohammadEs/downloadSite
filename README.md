@@ -34,9 +34,12 @@
 ---
 
 ---
+
+---
 ## فایل‌های دانلود شده
 
 - [15294_1778576046](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/15294_1778576046)
+- [Ghostty-1.3.2-main-+b0f8276-x86_64](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/Ghostty-1.3.2-main-%2Bb0f8276-x86_64)
 - [KeeWeb-1.18.7.linux.x64](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/KeeWeb-1.18.7.linux.x64)
 - [Lunacy](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/Lunacy)
 - [archive_20260513_072644](https://github.com/rMohammadEs/downloadSite/tree/main/downloads/archive_20260513_072644)
